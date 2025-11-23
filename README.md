@@ -1,3 +1,5 @@
-**旧事重提**
+# **骗你的其实啥都没有**
 
-每次做什么事情晚了你就说早干嘛去了，你提这个有啥意义
+嘿嘿嘿
+
+![image-20251123125328338](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20251123125328338.png)
