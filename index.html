@@ -1,77 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>几何计算器</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #f0f0f0;
+}
+
+.box {
+  padding: 15px;
+  background: white;
+  margin: 10px;
+  border-radius: 10px;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+select, input, button {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  font-size: 16px;
+}
+
+button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+
+#result {
+  margin-top: 10px;
+  font-weight: bold;
+  color: blue;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>表面积/面积/体积计算器</h2>
+
+  <select id="shape" onchange="updateUI()">
+    <option>正方形</option>
+    <option>长方形</option>
+    <option>平行四边形</option>
+    <option>圆形</option>
+    <option>圆柱</option>
+    <option>圆锥</option>
+    <option>正方体</option>
+    <option>长方体</option>
+    <option>球</option>
+  </select>
+
+  <select id="type"></select>
+
+  <input id="a">
+  <input id="b">
+  <input id="c">
+
+  <button onclick="calc()">计算</button>
+
+  <div id="result"></div>
+</div>
+
 <script>
 const pi = 3.14;
 
+// ===== 配置 =====
 const config = {
-  "正方形": {
-    types: ["面积"],
-    inputs: ["边长"]
-  },
-  "长方形": {
-    types: ["面积"],
-    inputs: ["长", "宽"]
-  },
-  "平行四边形": {
-    types: ["面积"],
-    inputs: ["底", "高"]
-  },
-  "圆形": {
-    types: ["周长", "面积"],
-    inputs: ["半径"]
-  },
-  "正方体": {
-    types: ["体积", "表面积"],
-    inputs: ["棱长"]
-  },
-  "长方体": {
-    types: ["体积", "表面积"],
-    inputs: ["长", "宽", "高"]
-  },
-  "圆柱": {
-    types: ["体积", "侧面积", "底面积"],
-    inputs: ["半径", "高"]
-  },
-  "圆锥": {
-    types: ["体积", "底面积"],
-    inputs: ["半径", "高"]
-  },
-  "球": {
-    types: ["体积", "表面积"],
-    inputs: ["半径"]
-  }
+  "正方形": { types:["面积"], inputs:["边长"] },
+  "长方形": { types:["面积"], inputs:["长","宽"] },
+  "平行四边形": { types:["面积"], inputs:["底","高"] },
+  "圆形": { types:["周长","面积"], inputs:["半径"] },
+  "正方体": { types:["体积","表面积"], inputs:["棱长"] },
+  "长方体": { types:["体积","表面积"], inputs:["长","宽","高"] },
+  "圆柱": { types:["体积","侧面积","底面积"], inputs:["半径","高"] },
+  "圆锥": { types:["体积","底面积"], inputs:["半径","高"] },
+  "球": { types:["体积","表面积"], inputs:["半径"] }
 };
 
-// ===== 图形变化时更新 =====
-function updateUI() {
+// ===== 更新UI =====
+function updateUI(){
   let shape = document.getElementById("shape").value;
-  let typeSelect = document.getElementById("type");
+  let type = document.getElementById("type");
 
-  // 清空类型
-  typeSelect.innerHTML = "";
+  type.innerHTML = "";
 
-  config[shape].types.forEach(t => {
-    let opt = document.createElement("option");
-    opt.text = t;
-    typeSelect.add(opt);
+  config[shape].types.forEach(t=>{
+    let op = document.createElement("option");
+    op.text = t;
+    type.add(op);
   });
 
   updateInputs();
 }
 
-// ===== 输入提示更新 =====
-function updateInputs() {
+// ===== 输入提示 =====
+function updateInputs(){
   let shape = document.getElementById("shape").value;
-  let inputs = config[shape].inputs;
+  let inp = config[shape].inputs;
 
-  document.getElementById("a").placeholder = "请输入" + inputs[0];
-  document.getElementById("b").style.display = inputs[1] ? "block" : "none";
-  document.getElementById("c").style.display = inputs[2] ? "block" : "none";
+  let a = document.getElementById("a");
+  let b = document.getElementById("b");
+  let c = document.getElementById("c");
 
-  if (inputs[1]) document.getElementById("b").placeholder = "请输入" + inputs[1];
-  if (inputs[2]) document.getElementById("c").placeholder = "请输入" + inputs[2];
+  a.placeholder = "请输入" + inp[0];
+
+  if(inp[1]){
+    b.style.display="block";
+    b.placeholder="请输入"+inp[1];
+  }else b.style.display="none";
+
+  if(inp[2]){
+    c.style.display="block";
+    c.placeholder="请输入"+inp[2];
+  }else c.style.display="none";
 }
 
 // ===== 计算 =====
-function calc() {
+function calc(){
   let shape = document.getElementById("shape").value;
   let type = document.getElementById("type").value;
 
@@ -79,84 +136,90 @@ function calc() {
   let b = parseFloat(document.getElementById("b").value);
   let c = parseFloat(document.getElementById("c").value);
 
-  if (isNaN(a)) return show("别搞");
+  if(isNaN(a)) return show("别搞");
 
-  let res = "";
+  let res="";
 
-  switch(shape) {
+  switch(shape){
 
     case "正方形":
-      res = `${a}×${a}=${a*a}`;
+      res=`${a}×${a}=${a*a}`;
       break;
 
     case "长方形":
-      if (isNaN(b)) return show("别搞");
-      res = `${a}×${b}=${a*b}`;
+      if(isNaN(b)) return show("别搞");
+      res=`${a}×${b}=${a*b}`;
       break;
 
     case "平行四边形":
-      if (isNaN(b)) return show("别搞");
-      res = `${a}×${b}=${a*b}`;
+      if(isNaN(b)) return show("别搞");
+      res=`${a}×${b}=${a*b}`;
       break;
 
     case "圆形":
-      if (type === "周长")
-        res = `2×3.14×${a}=${2*pi*a}`;
+      if(type==="周长")
+        res=`2×3.14×${a}=${2*pi*a}`;
       else
-        res = `3.14×${a}×${a}=${pi*a*a}`;
+        res=`3.14×${a}×${a}=${pi*a*a}`;
       break;
 
     case "正方体":
-      if (type === "体积")
-        res = `${a}×${a}×${a}=${a*a*a}`;
+      if(type==="体积")
+        res=`${a}×${a}×${a}=${a*a*a}`;
       else
-        res = `6×${a}×${a}=${6*a*a}`;
+        res=`6×${a}×${a}=${6*a*a}`;
       break;
 
     case "长方体":
-      if (isNaN(b)||isNaN(c)) return show("别搞");
-      if (type === "体积")
-        res = `${a}×${b}×${c}=${a*b*c}`;
+      if(isNaN(b)||isNaN(c)) return show("别搞");
+      if(type==="体积")
+        res=`${a}×${b}×${c}=${a*b*c}`;
       else
-        res = `2×(${a}×${b}+${a}×${c}+${b}×${c})=${2*(a*b+a*c+b*c)}`;
+        res=`2×(${a}×${b}+${a}×${c}+${b}×${c})=${2*(a*b+a*c+b*c)}`;
       break;
 
     case "圆柱":
-      if (type === "底面积") {
-        res = `${a}×${a}×3.14=${pi*a*a}`;
-      } else {
-        if (isNaN(b)) return show("别搞");
-        if (type === "体积")
-          res = `3.14×${a}×${a}×${b}=${pi*a*a*b}`;
+      if(type==="底面积"){
+        res=`${a}×${a}×3.14=${pi*a*a}`;
+      }else{
+        if(isNaN(b)) return show("别搞");
+        if(type==="体积")
+          res=`3.14×${a}×${a}×${b}=${pi*a*a*b}`;
         else
-          res = `2×3.14×${a}×${b}=${2*pi*a*b}`;
+          res=`2×3.14×${a}×${b}=${2*pi*a*b}`;
       }
       break;
 
     case "圆锥":
-      if (type === "底面积") {
-        res = `${a}×${a}×3.14=${pi*a*a}`;
-      } else {
-        if (isNaN(b)) return show("别搞");
-        res = `3.14×${a}×${a}×${b}÷3=${pi*a*a*b/3}`;
+      if(type==="底面积"){
+        res=`${a}×${a}×3.14=${pi*a*a}`;
+      }else{
+        if(isNaN(b)) return show("别搞");
+        res=`3.14×${a}×${a}×${b}÷3=${pi*a*a*b/3}`;
       }
       break;
 
     case "球":
-      if (type === "体积")
-        res = `4×3.14×${a}×${a}×${a}÷3=${4*pi*a*a*a/3}`;
+      if(type==="体积")
+        res=`4×3.14×${a}×${a}×${a}÷3=${4*pi*a*a*a/3}`;
       else
-        res = `4×3.14×${a}×${a}=${4*pi*a*a}`;
+        res=`4×3.14×${a}×${a}=${4*pi*a*a}`;
       break;
   }
 
   show(res);
 }
 
+// ===== 输出 =====
 function show(t){
-  document.getElementById("result").innerText = t;
+  document.getElementById("result").innerText=t;
 }
 
-// 初始化
-window.onload = updateUI;
+// 初始化（防白屏关键）
+window.onload = function(){
+  updateUI();
+};
 </script>
+
+</body>
+</html>
