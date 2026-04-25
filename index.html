@@ -1,93 +1,76 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="UTF-8">
-  <title>几何计算器</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Docsify 样式 -->
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-    }
-
-    .calc-box {
-      padding: 15px;
-      background: #f5f5f5;
-      border-bottom: 2px solid #ddd;
-    }
-
-    select, input, button {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0;
-      font-size: 16px;
-    }
-
-    #result {
-      margin-top: 10px;
-      font-weight: bold;
-      color: blue;
-    }
-  </style>
-</head>
-
-<body>
-
-<!-- ✅ 计算器UI -->
-<div class="calc-box">
-  <h3>表面积/面积/体积计算器</h3>
-
-  <select id="shape">
-    <option>正方形</option>
-    <option>长方形</option>
-    <option>平行四边形</option>
-    <option>圆形</option>
-    <option>圆柱</option>
-    <option>圆锥</option>
-    <option>正方体</option>
-    <option>长方体</option>
-    <option>球</option>
-  </select>
-
-  <select id="type">
-    <option>面积</option>
-    <option>体积</option>
-    <option>表面积</option>
-    <option>周长</option>
-    <option>侧面积</option>
-    <option>底面积</option>
-    <option>底面周长</option>
-  </select>
-
-  <input id="a" placeholder="请输入第一个数">
-  <input id="b" placeholder="请输入第二个数（可选）">
-  <input id="c" placeholder="请输入第三个数（可选）">
-
-  <button onclick="calc()">计算</button>
-
-  <div id="result"></div>
-</div>
-
-<!-- Docsify 内容 -->
-<div id="app"></div>
-
-<script>
-window.$docsify = {
-  name: '我的网站',
-  repo: ''
-}
-</script>
-
-<script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
-
-<!-- ✅ 你的计算逻辑（JS版） -->
 <script>
 const pi = 3.14;
 
+const config = {
+  "正方形": {
+    types: ["面积"],
+    inputs: ["边长"]
+  },
+  "长方形": {
+    types: ["面积"],
+    inputs: ["长", "宽"]
+  },
+  "平行四边形": {
+    types: ["面积"],
+    inputs: ["底", "高"]
+  },
+  "圆形": {
+    types: ["周长", "面积"],
+    inputs: ["半径"]
+  },
+  "正方体": {
+    types: ["体积", "表面积"],
+    inputs: ["棱长"]
+  },
+  "长方体": {
+    types: ["体积", "表面积"],
+    inputs: ["长", "宽", "高"]
+  },
+  "圆柱": {
+    types: ["体积", "侧面积", "底面积"],
+    inputs: ["半径", "高"]
+  },
+  "圆锥": {
+    types: ["体积", "底面积"],
+    inputs: ["半径", "高"]
+  },
+  "球": {
+    types: ["体积", "表面积"],
+    inputs: ["半径"]
+  }
+};
+
+// ===== 图形变化时更新 =====
+function updateUI() {
+  let shape = document.getElementById("shape").value;
+  let typeSelect = document.getElementById("type");
+
+  // 清空类型
+  typeSelect.innerHTML = "";
+
+  config[shape].types.forEach(t => {
+    let opt = document.createElement("option");
+    opt.text = t;
+    typeSelect.add(opt);
+  });
+
+  updateInputs();
+}
+
+// ===== 输入提示更新 =====
+function updateInputs() {
+  let shape = document.getElementById("shape").value;
+  let inputs = config[shape].inputs;
+
+  document.getElementById("a").placeholder = "请输入" + inputs[0];
+  document.getElementById("b").style.display = inputs[1] ? "block" : "none";
+  document.getElementById("c").style.display = inputs[2] ? "block" : "none";
+
+  if (inputs[1]) document.getElementById("b").placeholder = "请输入" + inputs[1];
+  if (inputs[2]) document.getElementById("c").placeholder = "请输入" + inputs[2];
+}
+
+// ===== 计算 =====
 function calc() {
   let shape = document.getElementById("shape").value;
   let type = document.getElementById("type").value;
@@ -96,63 +79,84 @@ function calc() {
   let b = parseFloat(document.getElementById("b").value);
   let c = parseFloat(document.getElementById("c").value);
 
-  let res = "";
-
   if (isNaN(a)) return show("别搞");
 
-  if (shape === "正方形") {
-    res = `${a}×${a}=${a*a}`;
-  }
+  let res = "";
 
-  else if (shape === "长方形") {
-    if (isNaN(b)) return show("别搞");
-    res = `${a}×${b}=${a*b}`;
-  }
+  switch(shape) {
 
-  else if (shape === "平行四边形") {
-    if (isNaN(b)) return show("别搞");
-    res = `${a}×${b}=${a*b}`;
-  }
+    case "正方形":
+      res = `${a}×${a}=${a*a}`;
+      break;
 
-  else if (shape === "圆形") {
-    if (type === "周长")
-      res = `2×3.14×${a}=${2*pi*a}`;
-    else if (type === "面积")
-      res = `3.14×${a}×${a}=${pi*a*a}`;
-  }
+    case "长方形":
+      if (isNaN(b)) return show("别搞");
+      res = `${a}×${b}=${a*b}`;
+      break;
 
-  else if (shape === "圆柱") {
-    if (isNaN(b)) return show("别搞");
+    case "平行四边形":
+      if (isNaN(b)) return show("别搞");
+      res = `${a}×${b}=${a*b}`;
+      break;
 
-    if (type === "体积")
-      res = `3.14×${a}×${a}×${b}=${pi*a*a*b}`;
-    else if (type === "侧面积")
-      res = `2×3.14×${a}×${b}=${2*pi*a*b}`;
-    else if (type === "底面积")
-      res = `${a}×${a}×3.14=${pi*a*a}`;
-  }
+    case "圆形":
+      if (type === "周长")
+        res = `2×3.14×${a}=${2*pi*a}`;
+      else
+        res = `3.14×${a}×${a}=${pi*a*a}`;
+      break;
 
-  else if (shape === "正方体") {
-    if (type === "体积")
-      res = `${a}×${a}×${a}=${a*a*a}`;
-    else if (type === "表面积")
-      res = `6×${a}×${a}=${6*a*a}`;
-  }
+    case "正方体":
+      if (type === "体积")
+        res = `${a}×${a}×${a}=${a*a*a}`;
+      else
+        res = `6×${a}×${a}=${6*a*a}`;
+      break;
 
-  else if (shape === "球") {
-    if (type === "体积")
-      res = `4×3.14×${a}×${a}×${a}÷3=${4*pi*a*a*a/3}`;
-    else if (type === "表面积")
-      res = `4×3.14×${a}×${a}=${4*pi*a*a}`;
+    case "长方体":
+      if (isNaN(b)||isNaN(c)) return show("别搞");
+      if (type === "体积")
+        res = `${a}×${b}×${c}=${a*b*c}`;
+      else
+        res = `2×(${a}×${b}+${a}×${c}+${b}×${c})=${2*(a*b+a*c+b*c)}`;
+      break;
+
+    case "圆柱":
+      if (type === "底面积") {
+        res = `${a}×${a}×3.14=${pi*a*a}`;
+      } else {
+        if (isNaN(b)) return show("别搞");
+        if (type === "体积")
+          res = `3.14×${a}×${a}×${b}=${pi*a*a*b}`;
+        else
+          res = `2×3.14×${a}×${b}=${2*pi*a*b}`;
+      }
+      break;
+
+    case "圆锥":
+      if (type === "底面积") {
+        res = `${a}×${a}×3.14=${pi*a*a}`;
+      } else {
+        if (isNaN(b)) return show("别搞");
+        res = `3.14×${a}×${a}×${b}÷3=${pi*a*a*b/3}`;
+      }
+      break;
+
+    case "球":
+      if (type === "体积")
+        res = `4×3.14×${a}×${a}×${a}÷3=${4*pi*a*a*a/3}`;
+      else
+        res = `4×3.14×${a}×${a}=${4*pi*a*a}`;
+      break;
   }
 
   show(res);
 }
 
-function show(text){
-  document.getElementById("result").innerText = text;
+function show(t){
+  document.getElementById("result").innerText = t;
 }
-</script>
 
-</body>
-</html>
+// 初始化
+window.onload = updateUI;
+</script>
