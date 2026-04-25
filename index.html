@@ -76,7 +76,6 @@ button {
 <script>
 const pi = 3.14;
 
-// ===== 配置 =====
 const config = {
   "正方形": { types:["面积"], inputs:["边长"] },
   "长方形": { types:["面积"], inputs:["长","宽"] },
@@ -89,7 +88,6 @@ const config = {
   "球": { types:["体积","表面积"], inputs:["半径"] }
 };
 
-// ===== 更新UI =====
 function updateUI(){
   let shape = document.getElementById("shape").value;
   let type = document.getElementById("type");
@@ -105,7 +103,6 @@ function updateUI(){
   updateInputs();
 }
 
-// ===== 输入提示 =====
 function updateInputs(){
   let shape = document.getElementById("shape").value;
   let inp = config[shape].inputs;
@@ -127,7 +124,6 @@ function updateInputs(){
   }else c.style.display="none";
 }
 
-// ===== 计算 =====
 function calc(){
   let shape = document.getElementById("shape").value;
   let type = document.getElementById("type").value;
@@ -210,12 +206,10 @@ function calc(){
   show(res);
 }
 
-// ===== 输出 =====
 function show(t){
   document.getElementById("result").innerText=t;
 }
 
-// 初始化（防白屏关键）
 window.onload = function(){
   updateUI();
 };
